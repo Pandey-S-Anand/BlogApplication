@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>HomePage</title>
+    <style>
+        .homePage {
+            width: 45%;
+            margin-right: 2%;
+            border: 1px solid #000000;
+            padding: 10px;
+            margin:10px;
+            float: left;
+        }
+        .post-content {
+            max-height: 3.5em;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<form th:action="@{/}" method="get">
+    <button type="submit">HOME</button>
+</form>
+<div th:each="post : ${postsList}" class="homePage">
+    <h3><p th:text="${post.title}"></p></h3>
+    <p th:text="${post.createdAt}"></p>
+    <p th:text="${post.excerpt}"></p>
+    <p th:text="${post.content}" th:class="'post-content'"></p>
+    <form th:action="@{/readMore}" method="get">
+        <input type="hidden" name="id" th:value="${post.id}"/>
+        <button type="submit">Read More</button>
+    </form>
+</div>
+</body>
+</html>

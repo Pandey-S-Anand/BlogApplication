@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 20px;
+        }
+
+        .post {
+            width: 48%;
+            border: 1px solid #000000;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .post-content {
+            max-height: 3.5em;
+            overflow: hidden;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .form-container {
+            display: flex;
+            margin-bottom: 20px;
+            margin:20px;
+        }
+
+        form {
+            margin-right: 10px;
+        }
+
+        .sort-form {
+            margin-left: 10px; /* Add space between Search and Sort buttons */
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Home Page</h2>
+    <div sec:authorize="isAuthenticated()">
+        <h2 th:text="'Welcome : '+${user.name}" style="color: white;"></h2>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+    <div sec:authorize="!isAuthenticated()">
+
+        <!-- Register Button -->
+        <form th:action="@{/signUp}" method="get">
+            <button type="submit">Register</button>
+        </form>
+        <form th:action="@{/signIn}" method="get">
+            <button type="submit">Login</button>
+        </form>
+
+    </div>
+</header>
+
+<div class="form-container">
+    <form th:action="@{/newPost}" method="post">
+        <button type="submit">Create Post</button>
+    </form>
+
+    <form th:action="@{/}" method="get">
+        <input type="text" name="searchTerm" placeholder="Search..."/>
+        <button type="submit">Search</button>
+    </form>
+
+    <form th:action="@{/}" method="get" class="sort-form">
+        <input type="hidden" name="pageNo" th:value="${currentPage}"/>
+        <input type="hidden" name="sortField" value="createdAt"/>
+        <input type="hidden" name="sortOrder" value="desc"/>
+        <button type="submit">Sort</button>
+    </form>
+
+    <div class="form-container">
+        <form th:action="@{/filteredPosts}" method="post">
+            <!-- Filter by Author -->
+            <label for="author">Filter by Author:</label>
+            <select id="author" name="author">
+                <option value="">All Authors</option>
+                <th:block th:each="author : ${authors}">
+                    <option th:value="${author}" th:text="${author}"></option>
+                </th:block>
+            </select>
+
+            <!-- Filter by Tags -->
+            <label for="tags">Filter by Tags:</label>
+            <select id="tags" name="tags">
+                <option value="">All Tags</option>
+                <th:block th:each="tag : ${tags}">
+                    <option th:value="${tag.id}" th:text="${tag.name}"></option>
+                </th:block>
+            </select>
+
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+</div>
+
+<div class="post-container">
+    <div th:each="post : ${posts}" class="post">
+        <h3><p th:text="${post.title}"></p></h3>
+        <h4 th:text="${post.excerpt}"></h4>
+        <p th:text="${post.content}" th:class="'post-content'"></p>
+        <p th:text="${post.createdAt}"></p>
+
+        <form th:action="@{/readMore}" method="get">
+            <input type="hidden" name="id" th:value="${post.id}"/>
+            <button type="submit">Read More</button>
+        </form>
+    </div>
+</div>
+
+<!-- Previous and Next Page Forms -->
+<div class="pagination-container">
+    <form th:if="${currentPage > 0}" th:action="@{/}" method="get">
+        <input type="hidden" name="pageNo" th:value="${currentPage - 1}"/>
+        <input type="hidden" name="sortField" th:value="${sortField}"/>
+        <input type="hidden" name="sortOrder" th:value="${sortOrder}"/>
+        <button type="submit">Previous</button>
+    </form>
+
+    <form th:if="${currentPage < totalPages - 1}" th:action="@{/}" method="get">
+        <input type="hidden" name="pageNo" th:value="${currentPage + 1}"/>
+        <input type="hidden" name="sortField" th:value="${sortField}"/>
+        <input type="hidden" name="sortOrder" th:value="${sortOrder}"/>
+        <button type="submit">Next</button>
+    </form>
+</div>
+
+</body>
+</html>
